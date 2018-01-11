@@ -20,77 +20,77 @@ use Propel\Generator\Util\PhpParser;
 
 class DataCacheBehaviorQueryBuilderModifier
 {
-    protected $behavior;
-    protected $builder;
-    protected $table;
+	protected $behavior;
+	protected $builder;
+	protected $table;
 
-    protected $tableClassName;
+	protected $tableClassName;
 
-    public function __construct($behavior)
-    {
-        $this->behavior = $behavior;
-        $this->table = $behavior->getTable();
-    }
+	public function __construct($behavior)
+	{
+		$this->behavior = $behavior;
+		$this->table = $behavior->getTable();
+	}
 
-    public function postUpdateQuery($builder)
-    {
-        $queryClassName = $builder->getStubQueryBuilder()->getClassname();
+	public function postUpdateQuery($builder)
+	{
+		$queryClassName = $builder->getStubQueryBuilder()->getClassname();
 
-        return "{$queryClassName}::purgeCache();";
-    }
+		return "{$queryClassName}::purgeCache();";
+	}
 
-    public function postDeleteQuery($builder)
-    {
-        return $this->postUpdateQuery($builder);
-    }
+	public function postDeleteQuery($builder)
+	{
+		return $this->postUpdateQuery($builder);
+	}
 
-    public function queryAttributes($builder)
-    {
-        $lifetime = $this->behavior->getParameter("lifetime");
-        $auto_cache = $this->behavior->getParameter("auto_cache");
+	public function queryAttributes($builder)
+	{
+		$lifetime = $this->behavior->getParameter("lifetime");
+		$auto_cache = $this->behavior->getParameter("auto_cache");
 
-        $script = "
+		$script = "
 protected \$cacheKey      = '';
 protected \$cacheLocale   = '';
 protected \$cacheEnable   = {$auto_cache};
 protected \$cacheLifeTime = {$lifetime};
         ";
 
-        return $script;
-    }
+		return $script;
+	}
 
-    public function queryMethods($builder)
-    {
+	public function queryMethods($builder)
+	{
 
-        $builder->declareClasses('\Propel\Runtime\Propel');
-        $this->tableClassName = $builder->getTableMapClassName();
-        $this->builder = $builder;
+		$builder->declareClasses('\Propel\Runtime\Propel');
+		$this->tableClassName = $builder->getTableMapClassName();
+		$this->builder = $builder;
 
-        $script = "";
-        $this->addPurgeCache($script);
-        $this->addCacheFetch($script);
-        $this->addCacheStore($script);
-        $this->addCacheDelete($script);
-        $this->addSetCacheEnable($script);
-        $this->addSetCacheDisable($script);
-        $this->addIsCacheEnable($script);
-        $this->addGetCacheKey($script);
-        $this->addSetCacheKey($script);
-        $this->addSetLocale($script);
-        $this->addSetLifeTime($script);
-        $this->addGetLifeTime($script);
-        $this->addFind($script);
-        $this->addFindOne($script);
+		$script = "";
+		$this->addPurgeCache($script);
+		$this->addCacheFetch($script);
+		$this->addCacheStore($script);
+		$this->addCacheDelete($script);
+		$this->addSetCacheEnable($script);
+		$this->addSetCacheDisable($script);
+		$this->addIsCacheEnable($script);
+		$this->addGetCacheKey($script);
+		$this->addSetCacheKey($script);
+		$this->addSetLocale($script);
+		$this->addSetLifeTime($script);
+		$this->addGetLifeTime($script);
+		$this->addFind($script);
+		$this->addFindOne($script);
 
-        return $script;
-    }
+		return $script;
+	}
 
 
-    protected function addPurgeCache(&$script)
-    {
-        $backend = $this->behavior->getParameter("backend");
+	protected function addPurgeCache(&$script)
+	{
+		$backend = $this->behavior->getParameter("backend");
 
-        $script .= "
+		$script .= "
 public static function purgeCache()
 {
 
@@ -101,14 +101,14 @@ public static function purgeCache()
 
 }
         ";
-    }
+	}
 
-    protected function addCacheFetch(&$script)
-    {
-        $backend = $this->behavior->getParameter("backend");
-        $objectClassName = $this->builder->getStubObjectBuilder()->getClassname();
+	protected function addCacheFetch(&$script)
+	{
+		$backend = $this->behavior->getParameter("backend");
+		$objectClassName = $this->builder->getStubObjectBuilder()->getClassname();
 
-        $script .= "
+		$script .= "
 public static function cacheFetch(\$key)
 {
 
@@ -134,13 +134,13 @@ public static function cacheFetch(\$key)
 
 }
         ";
-    }
+	}
 
-    protected function addCacheStore(&$script)
-    {
-        $backend = $this->behavior->getParameter("backend");
+	protected function addCacheStore(&$script)
+	{
+		$backend = $this->behavior->getParameter("backend");
 
-        $script .= "
+		$script .= "
 public static function cacheStore(\$key, \$data, \$lifetime)
 {
     \$driver = \\TFC\\Cache\\DoctrineCacheFactory::factory('{$backend}');
@@ -149,13 +149,13 @@ public static function cacheStore(\$key, \$data, \$lifetime)
     return \$driver->save(\$key,\$data,\$lifetime);
 }
         ";
-    }
+	}
 
-    protected function addCacheDelete(&$script)
-    {
-        $backend = $this->behavior->getParameter("backend");
+	protected function addCacheDelete(&$script)
+	{
+		$backend = $this->behavior->getParameter("backend");
 
-        $script .= "
+		$script .= "
 public static function cacheDelete(\$key)
 {
     \$driver = \\TFC\\Cache\\DoctrineCacheFactory::factory('{$backend}');
@@ -164,11 +164,11 @@ public static function cacheDelete(\$key)
     return \$driver->delete(\$key);
 }
         ";
-    }
+	}
 
-    protected function addSetCacheEnable(&$script)
-    {
-        $script .= "
+	protected function addSetCacheEnable(&$script)
+	{
+		$script .= "
 public function setCacheEnable()
 {
     \$this->cacheEnable = true;
@@ -176,11 +176,11 @@ public function setCacheEnable()
     return \$this;
 }
         ";
-    }
+	}
 
-    protected function addSetCacheDisable(&$script)
-    {
-        $script .= "
+	protected function addSetCacheDisable(&$script)
+	{
+		$script .= "
 public function setCacheDisable()
 {
     \$this->cacheEnable = false;
@@ -188,40 +188,44 @@ public function setCacheDisable()
     return \$this;
 }
         ";
-    }
+	}
 
-    protected function addIsCacheEnable(&$script)
-    {
-        $script .= "
+	protected function addIsCacheEnable(&$script)
+	{
+		$script .= "
 public function isCacheEnable()
 {
     return (bool)\$this->cacheEnable;
 }
         ";
-    }
+	}
 
-    protected function addGetCacheKey(&$script)
-    {
-        $script .= "
+	protected function addGetCacheKey(&$script)
+	{
+		$script .= "
 public function getCacheKey()
 {
+	\$param ='';
+    foreach (\$this->doSelect()->getDataObject()->getBoundValues() as \$value ){
+        \$param .= ''.\$value;
+        }
     if (\$this->cacheKey) {
         return \$this->cacheKey;
     }
     \$params      = array();
     \$sql_hash    = hash('md4', \$this->createSelectSql(\$params));
-    \$params_hash = hash('md4', json_encode(\$params));
+    \$params_hash = hash('md4', (\$param));
     \$locale      = \$this->cacheLocale ? '_' . \$this->cacheLocale : '';
     \$this->cacheKey = \$sql_hash . '_' . \$params_hash . \$locale;
 
     return \$this->cacheKey;
 }
         ";
-    }
+	}
 
-    protected function addSetLocale(&$script)
-    {
-        $script .= "
+	protected function addSetLocale(&$script)
+	{
+		$script .= "
 public function setCacheLocale(\$locale)
 {
     \$this->cacheLocale = \$locale;
@@ -229,11 +233,11 @@ public function setCacheLocale(\$locale)
     return \$this;
 }
 ";
-    }
+	}
 
-    protected function addSetCacheKey(&$script)
-    {
-        $script .= "
+	protected function addSetCacheKey(&$script)
+	{
+		$script .= "
 public function setCacheKey(\$cacheKey)
 {
     \$this->cacheKey = \$cacheKey;
@@ -241,11 +245,11 @@ public function setCacheKey(\$cacheKey)
     return \$this;
 }
 ";
-    }
+	}
 
-    protected function addSetLifeTime(&$script)
-    {
-        $script .= "
+	protected function addSetLifeTime(&$script)
+	{
+		$script .= "
 public function setLifeTime(\$lifetime)
 {
     \$this->cacheLifeTime = \$lifetime;
@@ -253,24 +257,24 @@ public function setLifeTime(\$lifetime)
     return \$this;
 }
         ";
-    }
+	}
 
-    protected function addGetLifeTime(&$script)
-    {
-        $script .= "
+	protected function addGetLifeTime(&$script)
+	{
+		$script .= "
 public function getLifeTime()
 {
     return \$this->cacheLifeTime;
 }
         ";
-    }
+	}
 
-    protected function addFind(&$script)
-    {
-        $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
-        $className = $this->builder->getStubObjectBuilder()->getClassname();
+	protected function addFind(&$script)
+	{
+		$queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
+		$className = $this->builder->getStubObjectBuilder()->getClassname();
 
-        $script .= "
+		$script .= "
 /**
  * Issue a SELECT query based on the current ModelCriteria
  * and format the list of results with the current formatter
@@ -282,7 +286,7 @@ public function getLifeTime()
  */
 public function find(ConnectionInterface \$con = null)
 {
-    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey())) {
+    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(self::getCacheKey())) {
         if (\$cache instanceof \\Propel\\Runtime\\Collection\\ObjectCollection) {
             \$formatter = \$this->getFormatter()->init(\$this);
             \$cache->setFormatter(\$formatter);
@@ -301,7 +305,7 @@ public function find(ConnectionInterface \$con = null)
     \$data = \$criteria->getFormatter()->init(\$criteria)->format(\$dataFetcher);
 
     if (\$this->isCacheEnable()) {
-        {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
+        {$queryClassName}::cacheStore(self::getCacheKey(), \$data, \$this->getLifeTime());
     }
 
     return \$data;
@@ -309,14 +313,14 @@ public function find(ConnectionInterface \$con = null)
 
 }
         ";
-    }
+	}
 
-    protected function addFindOne(&$script)
-    {
-        $className = $this->builder->getStubObjectBuilder()->getClassname();
-        $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
+	protected function addFindOne(&$script)
+	{
+		$className = $this->builder->getStubObjectBuilder()->getClassname();
+		$queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
 
-        $script .= "
+		$script .= "
 /**
  * Issue a SELECT ... LIMIT 1 query based on the current ModelCriteria
  * and format the result with the current formatter
@@ -328,7 +332,7 @@ public function find(ConnectionInterface \$con = null)
  */
 public function findOne(ConnectionInterface \$con  = null)
 {
-    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey())) {
+    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(self::getCacheKey())) {
         if (\$cache instanceof {$className}) {
             return \$cache;
         }
@@ -346,43 +350,43 @@ public function findOne(ConnectionInterface \$con  = null)
     \$data = \$criteria->getFormatter()->init(\$criteria)->formatOne(\$dataFetcher);
 
     if (\$this->isCacheEnable()) {
-        {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
+        {$queryClassName}::cacheStore(self::getCacheKey(), \$data, \$this->getLifeTime());
     }
 
     return \$data;
 }
         ";
-    }
+	}
 
-    public function queryFilter(&$script)
-    {
-        $parser = new PHPParser($script, true);
-        $this->replaceFindPk($parser);
-        $this->replaceDoDeleteAll($parser);
+	public function queryFilter(&$script)
+	{
+		$parser = new PHPParser($script, true);
+		$this->replaceFindPk($parser);
+		$this->replaceDoDeleteAll($parser);
 
-        $script = $parser->getCode();
-    }
+		$script = $parser->getCode();
+	}
 
-    protected function replaceDoDeleteAll(&$parser)
-    {
-        $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
+	protected function replaceDoDeleteAll(&$parser)
+	{
+		$queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
 
-        $search  = "\$con->commit();";
-        $replace = "\$con->commit();\n            {$queryClassName}::purgeCache();";
-        $script  = $parser->findMethod('doDeleteAll');
-        $script  = str_replace($search, $replace, $script);
+		$search  = "\$con->commit();";
+		$replace = "\$con->commit();\n            {$queryClassName}::purgeCache();";
+		$script  = $parser->findMethod('doDeleteAll');
+		$script  = str_replace($search, $replace, $script);
 
-        $parser->replaceMethod("doDeleteAll", $script);
-    }
+		$parser->replaceMethod("doDeleteAll", $script);
+	}
 
-    protected function replaceFindPk(&$parser)
-    {
-        $search  = "return \$this->findPkSimple(\$key, \$con);";
-        $replace = "return \$this->filterByPrimaryKey(\$key)->findOne(\$con);";
-        $script  = $parser->findMethod('findPk');
-        $script  = str_replace($search, $replace, $script);
+	protected function replaceFindPk(&$parser)
+	{
+		$search  = "return \$this->findPkSimple(\$key, \$con);";
+		$replace = "return \$this->filterByPrimaryKey(\$key)->findOne(\$con);";
+		$script  = $parser->findMethod('findPk');
+		$script  = str_replace($search, $replace, $script);
 
-        $parser->replaceMethod('findPk', $script);
-    }
+		$parser->replaceMethod('findPk', $script);
+	}
 }
-    
+
